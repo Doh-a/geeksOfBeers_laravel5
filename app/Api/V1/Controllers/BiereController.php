@@ -4,6 +4,7 @@ namespace App\Api\V1\Controllers;
 
 use Auth;
 use DB;
+use Input;
 
 use App\Models\Biere;
 use App\Models\Brasserie;
@@ -125,6 +126,50 @@ class BiereController extends BaseController
 
         return array('bieres' => $bieres);
     }
+
+    public function addBeer()
+	{
+		//Test if the brewery already exists:
+        $createBrasserie = false;
+        $brasserie = Brasserie::where('nom_brasserie', 'LIKE', Input::get('brewery_name'))->first();
+        if($brasserie != null)
+        {
+            $createBrasserie = false;
+            $brasserieId = $brasserie->id_brasserie;
+        }
+
+		if($createBrasserie)
+		{
+			$brasserie = new Brasserie;
+			
+			$brasserie->nom_brasserie = Input::get('brewerie_name');
+			
+			$brasserie->save();
+			
+			$brasserieId = $brasserie->id_brasserie;
+		}
+		
+		$biere = new Biere;
+		
+		//TODO : verifier token et format des donnees
+		$biere->nom_biere = Input::get('beer_name');
+		$biere->degre = Input::get('beer_degres');
+		$biere->brasserie = $brasserieId;
+		$biere->couleur = Couleur::where('nom_couleur', 'LIKE', Input::get('couleur'))->first();
+		$biere->fermentation = Fermentation::where('nom_fermentation', 'LIKE', Input::get('fermentation'))->first();
+		$biere->maltage = Maltage::where('nom_maltage', 'LIKE', Input::get('maltage'))->first();;
+		$biere->type = TypeAmericain::where('nom_type', 'LIKE', Input::get('type'))->first();
+		$biere->type2 = TypeBelge::where('nom_type2', 'LIKE', Input::get('type2'))->first();
+		
+		$biere->save();
+
+		//TODO: add upload a picture
+		$biere->save();
+		
+		//TODO : rediriger vers la page biere avec une confirmation de l'ajout
+		return array($biere);
+
+	}
 }
 
 ?>

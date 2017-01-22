@@ -115,4 +115,6 @@ $api->version('v1', function ($api) {
 	$api->get('listTypes', 'App\Api\V1\Controllers\TypeController@listAll');
 
 	$api->get('lookForBrewery/{text}', 'App\Api\V1\Controllers\BreweryController@lookForBrewery');
+
+	$api->post('addBeer', 'App\Api\V1\Controllers\BiereController@addBeer');
 });
