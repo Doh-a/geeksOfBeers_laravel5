@@ -111,4 +111,8 @@ $api->version('v1', function ($api) {
 	});
 		
 	$api->get('randomBeers', array('as' => 'biere', 'uses' => 'App\Api\V1\Controllers\BiereController@randomBeers'));
+
+	$api->get('listTypes', 'App\Api\V1\Controllers\TypeController@listAll');
+
+	$api->get('lookForBrewery/{text}', 'App\Api\V1\Controllers\BreweryController@lookForBrewery');
 });
