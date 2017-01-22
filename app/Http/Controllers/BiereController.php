@@ -42,12 +42,9 @@ class BiereController extends BaseController
 		$typesAmericain = TypeAmericain::orderBy('nom_type', 'asc')->lists('nom_type', 'id_type');
 		$typesBelge = TypeBelge::orderBy('nom_type2', 'asc')->lists('nom_type2', 'id_type2');
 	
-		$initBrasseries = array(
-			-2 => "-----------",
-			-1 => "Nouvelle brasserie",
-		);
-		$brasseries = $initBrasseries + $brasseries;
-		
+		$brasseries->prepend("Nouvelle brasserie", -1);
+		$brasseries->prepend("-------------", -2);
+
 		//breweries datas
 		$countries = Country::orderBy('country_name', 'asc')->lists('country_name', 'id_country');
 	
