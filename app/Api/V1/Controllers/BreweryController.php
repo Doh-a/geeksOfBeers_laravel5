@@ -15,7 +15,7 @@ class BreweryController extends BaseController
      */
     public function lookForBrewery($searchKey)
     {
-        $brasserie = Brasserie::select('id_brasserie', 'nom_brasserie')->whereRaw('LOWER(nom_brasserie) LIKE ?',  array('%' . $searchKey . '%'))->get();
+        $brasserie = Brasserie::select('id_brasserie', 'nom_brasserie')->whereRaw('LOWER(nom_brasserie) LIKE ?',  array('%' . strtolower($searchKey) . '%'))->get();
 		
         return array('foundBreweries' => $brasserie);
     }

@@ -105,7 +105,7 @@ body {
 		<div id="alert_placeholder"></div>
 		<h1>{{{ $biere->nom_biere }}}</h1>
 		<div id="image-box">
-			{!! Html::image((asset("assets/img/bieres/$biere->etiquette")), "Logo $biere->nom_biere", array("width" => "200px;", "align" => "left", "padding" => "5px;")) !!}	
+			{!! Html::image((asset("assets/img/bieres/$biere->id_biere/$biere->etiquette")), "Logo $biere->nom_biere", array("width" => "200px;", "align" => "left", "padding" => "5px;")) !!}	
 		</div>
 		<div id="infos-box">
 			<div id="infos-biere">
@@ -115,9 +115,7 @@ body {
 				<b>Fermentation : </b> {!! link_to("fermentation/", $biere->fermentation()->nom_fermentation) !!}<br />
 				<b>Maltage : </b> {!! link_to("maltage/", $biere->maltage()->nom_maltage) !!}<br />
 				<b>Classification (am&eacute;ricaine) : </b>{{ $biere->typeAmericain()->nom_type }}<br />
-				@if($biere->typeBelge() != null)
-					<b>Classification (belge) : </b>{{ $biere->typeBelge()->nom_type }}
-				@endif
+				<b>Classification (belge) : </b>{{ $biere->typeBelge()->nom_type }}
 			</div>
 			<div id="beer-description">
 				<h2>Description</h2>

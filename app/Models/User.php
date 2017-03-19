@@ -12,6 +12,7 @@ use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 
 use App\Models\Avatar;
 use App\Models\UserBiere;
+use App\Models\UserRole;
 
 class User extends Eloquent implements AuthenticatableContract, CanResetPasswordContract {
 
@@ -97,5 +98,18 @@ class User extends Eloquent implements AuthenticatableContract, CanResetPassword
 	public function getRememberTokenName()
 	{
 		return 'remember_token';
+	}
+
+	public function userRole()
+	{
+		if($this->role == "")
+		{
+			$this->role = 1;
+			$this->save();
+		}	
+		
+		$userRole = UserRole::find($this->role);
+
+		return $userRole;
 	}
 }

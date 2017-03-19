@@ -18,11 +18,39 @@ class Brasserie extends Eloquent {
 	
 	public function getBieres()
 	{
-		$bieres = Biere::where('brasserie', '=', $this->id_brasserie)->take(10)->get();
-		
-		foreach ($bieres as $biere)
+		$bieres = Biere::where('brasserie', '=', $this->id_brasserie)->get();
+
+		return $bieres;
+	}
+
+	public function getBeersCount()
+	{
+		$beersCount = Biere::where('brasserie', '=', $this->id_brasserie)->count();
+
+		return $beersCount;
+	}
+
+	public function country()
+	{
+		if($this->country == "")
+			return "null";
+
+		$country = Country::find($this->country);
+
+		return $country;
+	}
+
+	public function creator()
+	{
+		if($this->created_by == 0)
 		{
-			var_dump($biere->nom_biere);
+			$anonymousUser = new User();
+			$anonymousUser->username = "Anonymous";
+			return $anonymousUser;
 		}
+
+		$user = User::find($this->created_by);
+		
+		return $user;
 	}
 }

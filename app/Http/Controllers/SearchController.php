@@ -23,13 +23,13 @@ class SearchController extends BaseController
 			
 			//This will return beers
 			$bieres = Biere::select(DB::raw('id_biere, nom_biere, etiquette'))
-						->whereRaw('LOWER(nom_biere) LIKE ?',  array('%' . $searchKey . '%'))
+						->whereRaw('LOWER(nom_biere) LIKE ?',  array('%' . strtolower($searchKey) . '%'))
 						->get();
 			
 			$idBieresList = array();
 			foreach($bieres as $tmpBiere)
 			{
-				$jsonResult[] = array("link_directory" => "biere", "img_folder" => asset("assets/img/bieres"), "id_item" => $tmpBiere->id_biere, "name_item" => $tmpBiere->nom_biere, "img" => $tmpBiere->etiquette);
+				$jsonResult[] = array("link_directory" => "biere", "img_folder" => asset("assets/img/bieres"), "id_item" => $tmpBiere->id_biere, "name_item" => $tmpBiere->nom_biere, "img" => $tmpBiere->id_biere . '/' . $tmpBiere->etiquette);
 			}
 			
 			//This will return breweries

@@ -65,6 +65,7 @@ class BiereController extends BaseController
 			$brasserie->nom_brasserie = Input::get('brewerie_name');
 			$brasserie->country = Input::get('country');
 			$brasserie->description_brasserie = Input::get('brewerie_description');
+			$brasserie->created_by = Auth::user()->getAuthIdentifier();
 			
 			$brasserie->save();
 			

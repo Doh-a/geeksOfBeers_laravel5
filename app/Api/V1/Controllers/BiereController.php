@@ -24,12 +24,6 @@ class BiereController extends BaseController
     public function biereDatasAsText($biere_id)
     {
 		$biere = Biere::find($biere_id);
-        $brasserie = Brasserie::find($biere->brasserie)->first();
-		$couleur = Couleur::find($biere->couleur)->first();
-        $fermentation = Fermentation::find($biere->fermentation)->first();
-        $maltage = Maltage::find($biere->maltage)->first();
-        $typeAmericain = TypeAmericain::find($biere->type)->first();
-        $typeBelge = TypeBelge::find($biere->type2)->first();
 
         //Get the community notations about this beer
 		$biereRates = DB::table('user_biere')
@@ -59,26 +53,20 @@ class BiereController extends BaseController
 			$biereAverageRate = round($totalPoints/$totalVotes, 2);
 
         return array('beer' => $biere, 
-                    'brewery' => $brasserie,
-                    'color' => $couleur,
-                    'fermentation' => $fermentation,
-                    'maltage' => $maltage,
+                    'brewery' => $biere->brasserie(),
+                    'color' => $biere->couleur(),
+                    'fermentation' => $biere->fermentation(),
+                    'maltage' => $biere->maltage(),
                     'rate' => $biereAverageRate,
-                    'type' => $typeAmericain,
-                    'type2' => $typeBelge,
+                    'type' => $biere->typeAmericain(),
+                    'type2' => $biere->typeBelge(),
                     );
     }
 
     public function biereUserDatasAsText($biere_id)
     {
 		$biere = Biere::find($biere_id);
-        $brasserie = Brasserie::find($biere->brasserie)->first();
-		$couleur = Couleur::find($biere->couleur)->first();
-        $fermentation = Fermentation::find($biere->fermentation)->first();
-        $maltage = Maltage::find($biere->maltage)->first();
-        $typeAmericain = TypeAmericain::find($biere->type)->first();
-        $typeBelge = TypeBelge::find($biere->type2)->first();
-
+       
         //Get the community notations about this beer
 		$biereRates = DB::table('user_biere')
                      ->select(DB::raw('note_biere, count(*) as rate_count'))
@@ -106,16 +94,16 @@ class BiereController extends BaseController
 		if($totalVotes > 0)
 			$biereAverageRate = round($totalPoints/$totalVotes, 2);
 
-        $biereUser = UserBiere::where("id_user", "=", Auth::user()->getAuthIdentifier())->where("id_biere", "=", $biere_id)->first();
+        $biereUser = UserBiere::where("id_user", "=", app('Dingo\Api\Auth\Auth')->user()->getAuthIdentifier())->where("id_biere", "=", $biere_id)->first();
 
         return array('beer' => $biere, 
-                    'brewery' => $brasserie,
-                    'color' => $couleur,
-                    'fermentation' => $fermentation,
-                    'maltage' => $maltage,
+                    'brewery' => $biere->brasserie(),
+                    'color' => $biere->couleur(),
+                    'fermentation' => $biere->fermentation(),
+                    'maltage' => $biere->maltage(),
                     'rate' => $biereAverageRate,
-                    'type' => $typeAmericain,
-                    'type2' => $typeBelge,
+                    'type' => $biere->typeAmericain(),
+                    'type2' => $biere->typeBelge(),
                     'userRate' => $biereUser
                     );
     }
@@ -130,8 +118,8 @@ class BiereController extends BaseController
     public function addBeer()
 	{
 		//Test if the brewery already exists:
-        $createBrasserie = false;
-        $brasserie = Brasserie::where('nom_brasserie', 'LIKE', Input::get('brewery_name'))->first();
+        $createBrasserie = true;
+        $brasserie = Brasserie::whereRaw('LOWER(nom_brasserie) LIKE ?',  array('%' . strtolower(Input::get('brewery_name')) . '%'))->first();
         if($brasserie != null)
         {
             $createBrasserie = false;
@@ -142,8 +130,8 @@ class BiereController extends BaseController
 		{
 			$brasserie = new Brasserie;
 			
-			$brasserie->nom_brasserie = Input::get('brewerie_name');
-			
+			$brasserie->nom_brasserie = Input::get('brewery_name');
+			$brasserie->created_by = app('Dingo\Api\Auth\Auth')->user()->getAuthIdentifier();
 			$brasserie->save();
 			
 			$brasserieId = $brasserie->id_brasserie;
@@ -155,19 +143,40 @@ class BiereController extends BaseController
 		$biere->nom_biere = Input::get('beer_name');
 		$biere->degre = Input::get('beer_degres');
 		$biere->brasserie = $brasserieId;
-		$biere->couleur = Couleur::where('nom_couleur', 'LIKE', Input::get('couleur'))->first();
-		$biere->fermentation = Fermentation::where('nom_fermentation', 'LIKE', Input::get('fermentation'))->first();
-		$biere->maltage = Maltage::where('nom_maltage', 'LIKE', Input::get('maltage'))->first();;
-		$biere->type = TypeAmericain::where('nom_type', 'LIKE', Input::get('type'))->first();
-		$biere->type2 = TypeBelge::where('nom_type2', 'LIKE', Input::get('type2'))->first();
+        $biere->couleur = Couleur::whereRaw('LOWER(nom_couleur) LIKE ?', array('%' . strtolower(Input::get('color')) . '%'))->first()->id_couleur;
+        $biere->fermentation = Fermentation::whereRaw('LOWER(nom_fermentation) LIKE ?', array('%' . strtolower(Input::get('fermentation')) . '%'))->first()->id_fermentation;
+        $biere->maltage = Maltage::whereRaw('LOWER(nom_maltage) LIKE ?', array('%' . strtolower(Input::get('maltage')) . '%'))->first()->id_maltage;
+		$biere->type = TypeAmericain::where('nom_type', 'LIKE', Input::get('type'))->first()->id_type;
+		$biere->type2 = TypeBelge::where('nom_type2', 'LIKE', Input::get('type2'))->first()->id_type2;
 		
-		$biere->save();
+        //Create the beer
+        $biere->save();
 
-		//TODO: add upload a picture
+        //If a file has been uploaded, move it to the good directory
+        
+		$image = Input::get('etiquetteFile');
+        $tmpEtiquetteName = $biere->id_biere . ".png";
+		if($tmpEtiquetteName != 'false')
+		{
+			$beerImagesPath = "assets/img/bieres/".$biere->id_biere;
+			$tmpEtiquettePath = 'files/' . $tmpEtiquetteName;
+			$tmpEtiquetteThumbnailPath = 'files/thumbnail/' . $tmpEtiquetteName;
+
+			if (mkdir($beerImagesPath, 0777, true))
+			{
+				//Move the image
+                file_put_contents($tmpEtiquettePath, base64_decode($image));
+				rename($tmpEtiquettePath, $beerImagesPath.'/'.$tmpEtiquetteName);
+			}
+		}
+
+		$biere->etiquette = $tmpEtiquetteName;
+
+		//Update the beer to add the label
 		$biere->save();
 		
 		//TODO : rediriger vers la page biere avec une confirmation de l'ajout
-		return array($biere);
+		return array("beer" => $biere);
 
 	}
 }

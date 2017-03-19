@@ -90,6 +90,12 @@ Route::get('likeEvent/{id_event}/{like_type}', 'UserEvents@likeEvent');
 Route::post('commentEvent/{id_event}', 'UserEvents@commentEvent');
 Route::get('commentEvent/{id_event}', 'UserEvents@commentEvent');
 
+//Database management:
+Route::get('database', 'DatabaseController@breweries');
+Route::get('database/breweries', 'DatabaseController@breweries');
+Route::get('database/editBrewery/{id_brewery}', 'DatabaseController@editBreweryForm');
+Route::post('database/editBrewery', 'DatabaseController@editBrewery');
+Route::get('database/beers', 'DatabaseController@beers');
 
 //File upload
 Route::post('upload',array('as'=>'upload', 'before'=>'auth','uses'=>'UploadController@index'));

@@ -140,21 +140,12 @@
 
 		<!-- Container -->
 		<div class="container">
-			<!-- Notifications -->
-			@include('notifications')
-			<!-- ./ notifications -->
-			
-			<!-- User Context -->
-			<div id="column_user_context">
-				@yield('user-context')
-			</div>
-			
-			<div id="column_more_content">
-				@yield('more-content')
-			</div>
-			
-			<!-- Content -->
-			<div id="column_content">
+			<div id="content">
+                <ul class="nav nav-tabs">
+					<li role="presentation" id="tabDatabaseInfo"><a href="#">Infos</a></li>
+                    <li role="presentation" id="tabDatabaseBeers"><a href="database/beers">Bières</a></li>
+                    <li role="presentation" id="tabDatabaseBreweries"><a href="database/breweries">Brasseries</a></li>
+                </ul>
 				@yield('content')
 			</div>
 			<!-- ./ content -->
